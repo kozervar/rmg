@@ -1,7 +1,7 @@
 /**
  * Created by Marcin Kozaczyk on 23.04.14.
  */
-var Network = Class.create({
+var Network = Object.extend({
 
     initialize : function(){
         console.debug('Connecting to server.');
@@ -19,8 +19,10 @@ var Network = Class.create({
 
     onConnect : function(){
         console.debug('Connected to server.');
+        this.socket.emit(window.CONN.CONNECTED);
     },
     onDisconnect : function(){
         console.debug('Disconnected from server.');
+        this.socket.disconnect();
     }
 });

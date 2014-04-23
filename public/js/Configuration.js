@@ -4,13 +4,13 @@
 (function () {
 
     var CONFIG = {
-        PORT: 4004
+        PORT : 4004,
+        SESSION_RELOAD_INT : 10*1000
     };
 
     if (typeof module !== 'undefined') { // server side
         module.exports = CONFIG;
     } else {                             // clients and smarthphones
-        var application = {};
         window.CONFIG = CONFIG;
     }
 })();
