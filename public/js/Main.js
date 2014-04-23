@@ -12,6 +12,7 @@ var Main = Object.extend({
     preload: function () {
         this.game.load.image('ground', 'assets/gfx/ground.png');
         this.game.load.image('player', 'assets/gfx/player.png');
+
     },
 
     create: function () {
@@ -76,6 +77,7 @@ var Main = Object.extend({
             20, 20, '', { font: '16px Arial', fill: '#ffffff' }
         );
 
+        this.createDebugGui();
     },
 
     drawHeightMarkers: function () {
@@ -125,6 +127,24 @@ var Main = Object.extend({
                 if (!onTheGround) this.canDoubleJump = false;
             }
         }
+    },
+
+    render : function(){
+        //this.game.debug.text("this is debug text", this.player.position.x - 10, this.player.position.y - 10);
+        this.game.debug.text(this.game.time.deltaCap, 10, 10);
+    },
+
+    createDebugGui : function(){
+        this.gui = new dat.GUI();
+
+        var _playersettings = this.gui.addFolder('Player');
+        _playersettings.add(this.player.position, 'x').listen();
+        _playersettings.add(this.player.position, 'y').listen();
+        _playersettings.add(this.player.body.acceleration, 'x').listen();
+        _playersettings.add(this.player.body.acceleration, 'y').listen();
+
+
+        _playersettings.open();
     }
 });
 jQuery(document).ready(function () {

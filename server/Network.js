@@ -4,14 +4,16 @@
 require('./../public/js/Util.js');
 var UUID = require('node-uuid'),
     CONFIG = require('./../public/js/Configuration.js'),
-    CONN = require('./../public/js/Connection.js');
+    CONN = require('./../public/js/Connection.js'),
+    GameServer = require('GameServer.js');
 
 var Network = Object.extend({
 
     initialize : function(app){
         console.log("Initializing networking");
-
-        app.io.route(CONN.CONNECTED, this.onClientConnect.bind(this));
+        this.app = app;
+        this.app.io.route(CONN.CONNECTED, this.onClientConnect.bind(this));
+        this.gameServer =  new GameServer(app);
     },
 
     onClientConnect : function(req){
@@ -29,12 +31,14 @@ var Network = Object.extend({
 
             req.io.emit(CONN.SESSION, req.session);
 
+            this.gameServer.addClient(req);
         });
     },
 
-    onSessionDisconnect : function(session){
-        console.log('Client disconnected UUID: ' + session.UUID);
-        clearInterval(session.intervalID);
+    onSessionDisconnect : function(req){
+        this.gameServer.removeClient(req);
+        clearInterval(req.intervalID);
+        console.log('Client disconnected UUID: ' + req.session.UUID);
     },
 
     onSessionReload : function(req){

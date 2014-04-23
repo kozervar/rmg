@@ -23,7 +23,5 @@ app.use(express.static(__dirname + '/public/'));
 console.info('Starting server.');
 app.listen(CONFIG.PORT, function(){
     console.info('Server started. Port: ' + CONFIG.PORT);
-
     var net = new Network(app);
-
 });
