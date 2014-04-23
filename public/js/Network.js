@@ -3,7 +3,8 @@
  */
 var Network = Object.extend({
 
-    initialize : function(){
+    initialize : function(main){
+        this.main = main;
         console.debug('Connecting to server.');
         if (this.socket == null) {
             this.socket = io.connect(null, {
@@ -13,6 +14,7 @@ var Network = Object.extend({
 
             this.socket.on('connect', this.onConnect.bind(this));
             this.socket.on('disconnect', this.onDisconnect.bind(this));
+            this.socket.on(window.CONN.SESSION, this.onSessionEstablished.bind(this));
         }
         this.socket.socket.connect();
     },
@@ -24,5 +26,9 @@ var Network = Object.extend({
     onDisconnect : function(){
         console.debug('Disconnected from server.');
         this.socket.disconnect();
+    },
+    onSessionEstablished : function(session){
+        console.debug('Session established. UUID: ' + session.UUID);
+        this.main.start();
     }
 });

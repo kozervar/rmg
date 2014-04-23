@@ -33,8 +33,8 @@ var Network = Object.extend({
     },
 
     onSessionDisconnect : function(session){
+        console.log('Client disconnected UUID: ' + session.UUID);
         clearInterval(session.intervalID);
-        console.log('Client disconnected UUID: ' + req.session.UUID);
     },
 
     onSessionReload : function(req){

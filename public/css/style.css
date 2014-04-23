@@ -1,0 +1,15 @@
+body {
+    margin: 0;
+    background: #BFBFBF;
+    font-family: calibri;
+}
+/* GAME */
+#game {
+    float: left;
+    position: fixed;
+    /*left: 50%;*/
+    /*top: 50%;*/
+    /*margin-left: -400px;*/
+    /*margin-top: -400px;*/
+    cursor: none;
+}
