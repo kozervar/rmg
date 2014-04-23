@@ -1,0 +1,15 @@
+{
+    "name": "rmg",
+    "author" : "Marcin Kozaczyk",
+    "description": "Realtime multiplayer game written in JavaScript",
+    "license": "MIT",
+    "version": "1.0.0",
+    "dependencies": {
+        "express.io": "*",
+        "socket.io": "*",
+        "node-uuid": "*"
+    },
+    "engine": {
+        "node": "0.10.x"
+    }
+}

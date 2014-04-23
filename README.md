@@ -1,4 +1,6 @@
-rmg
-===
+Realtime Multiplayer Game In HTML5 and JS
+=============================
 
-Realtime multiplayer game in HTML5 and JavaScript
+## License
+
+MIT Licensed.
