@@ -4,7 +4,7 @@
 var debugGui = new dat.GUI();
 var Main = Object.extend({
 
-
+    players : null,
 
     initialize: function () {
     },
@@ -13,14 +13,21 @@ var Main = Object.extend({
         this.game.state.add('game', this, true);
 
         this.network = network;
+
         this.network.sessionEstablishedSignal.add(this.startSession, this);
         this.network.sessionLostSignal.add(this.sessionLost, this);
+
+        this.network.clientConnectedSignal.add(this.playerConnected, this);
+        this.network.clientDisconnectedSignal.add(this.playerDisconnected, this);
     },
 
     preload: function () {
         this.game.load.image('ground', 'assets/gfx/ground.png');
         this.game.load.image('player', 'assets/gfx/player.png');
         this.game.load.image('rocket', 'assets/gfx/rocket.png');
+
+        this.players = this.game.add.group();
+
         this.game.load.onLoadComplete.add(this.network.connect, this.network);
     },
 
@@ -92,6 +99,9 @@ var Main = Object.extend({
         if (this.player) {
             this.player.collide(this.ground);
         }
+        this.players.forEach(function(item){
+            item.collide(this.ground);
+        },this);
     },
 
     render: function () {
@@ -101,6 +111,14 @@ var Main = Object.extend({
     },
 
     createDebugGui: function () {
+
+    },
+
+    startSession: function (uuid) {
+
+        this.player = new Player(this, this.game.width / 2, this.game.height - 164, uuid);
+        this.player.createPlayer();
+
         var _time = debugGui.addFolder('Time');
         _time.add(this.game.time, 'fps').listen();
         _time.add(this.game.time, 'deltaCap').listen();
@@ -109,22 +127,42 @@ var Main = Object.extend({
         _time.add(this.game.time, 'lastTime').listen();
         _time.add(this.game.time, 'now').listen();
         _time.open();
-    },
-
-    startSession: function (uuid){
-        this.player = new Player(this, this.game.width / 2, this.game.height - 164, uuid);
-        this.player.createPlayer();
         var _playersettings = debugGui.addFolder('Player');
         _playersettings.add(this.player.position, 'x').listen();
         _playersettings.add(this.player.position, 'y').listen();
         _playersettings.add(this.player.body.acceleration, 'x').listen();
         _playersettings.add(this.player.body.acceleration, 'y').listen();
         _playersettings.open();
+        var _netFolder = debugGui.addFolder('Network');
+        _netFolder.add(this.network, 'id').listen();
+        _netFolder.add(this.network, 'netLatency').listen();
+        _netFolder.add(this.network, 'netPing').listen();
+        _netFolder.add(this.network, 'lastPingTime').listen();
+        _netFolder.add(this.network, 'fakeLag', 0).listen();
+        _netFolder.open();
     },
 
     sessionLost: function (uuid) {
         this.player.destroyPlayer();
         console.debug("Session lost!");
+    },
+
+    playerConnected: function (uuid) {
+        console.debug("Player connected: " + uuid);
+        var p = new Player(this, this.game.world.randomX, this.game.world.randomY, uuid);
+        this.players.add(p);
+    },
+
+    playerDisconnected: function (uuid) {
+        var p = undefined;
+
+        this.players.forEach(function(item){
+            if(item.uuid === uuid) p = item;
+        },this);
+
+        this.players.remove(p);
+
+        console.debug("Player disconnected: " + uuid);
     }
 
 });

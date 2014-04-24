@@ -3,20 +3,23 @@
  */
 var Network = Object.extend({
 
-    id : null,
+    id: null,
 
-    netLatency : 0.001,
-    netPing : 0.001,
-    lastPingTime : 0.001,
-    fakeLag : 0,
+    netLatency: 0.001,
+    netPing: 0.001,
+    lastPingTime: 0.001,
+    fakeLag: 0,
 
-    sessionEstablishedSignal : new Phaser.Signal(),
-    sessionLostSignal : new Phaser.Signal(),
+    sessionEstablishedSignal: new Phaser.Signal(),
+    sessionLostSignal: new Phaser.Signal(),
+
+    clientConnectedSignal: new Phaser.Signal(),
+    clientDisconnectedSignal: new Phaser.Signal(),
 
     initialize: function () {
     },
 
-    connect : function() {
+    connect: function () {
         console.debug('Connecting to server.');
         if (this.socket == null) {
             this.socket = io.connect(null, {
@@ -30,15 +33,6 @@ var Network = Object.extend({
             this.socket.on(window.CONN.MESSAGE, this.onServerMessage.bind(this));
         }
         this.socket.socket.connect();
-
-        var _netFolder = debugGui.addFolder('Network');
-        _netFolder.add(this, 'id').listen();
-        _netFolder.add(this, 'netLatency').listen();
-        _netFolder.add(this, 'netPing').listen();
-        _netFolder.add(this, 'lastPingTime').listen();
-        _netFolder.add(this, 'fakeLag', 0).listen();
-
-        _netFolder.open();
     },
 
     onConnect: function () {
@@ -54,9 +48,9 @@ var Network = Object.extend({
         console.debug('Session established. UUID: ' + session.UUID);
         var self = this;
         // create ping timer
-        setInterval(function(){
+        setInterval(function () {
             self.lastPingTime = new Date().getTime() - self.fakeLag;
-            self.socket.send(window.CONN.PING + '#' + (self.lastPingTime) );
+            self.socket.send(window.CONN.PING + '#' + (self.lastPingTime));
         }.bind(this), 1000);
 
         this.id = session.UUID;
@@ -72,11 +66,25 @@ var Network = Object.extend({
             case window.CONN.PING : //server ping
                 this.onServerPing(data);
                 break;
+            case window.CONN.CLIENT_CONNECTED :
+                this.onClientConnected(data);
+                break;
+            case window.CONN.CLIENT_DISCONNECTED :
+                this.onClientDisconnected(data);
+                break;
         } //subcommand
     },
 
     onServerPing: function (data) {
-        this.netPing = new Date().getTime() - parseFloat( data );
-        this.netLatency = this.netPing/2;
+        this.netPing = new Date().getTime() - parseFloat(data);
+        this.netLatency = this.netPing / 2;
+    },
+
+    onClientConnected: function (data) {
+        this.clientConnectedSignal.dispatch(data);
+    },
+
+    onClientDisconnected: function (data) {
+        this.clientDisconnectedSignal.dispatch(data);
     }
 });

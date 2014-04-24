@@ -9,7 +9,9 @@ var CONN = {
     CONNECTED   : 0,
     DISCONNECTED: 1,
     SESSION     : 2,
-    PING        : 'p'
+    PING        : 'p',
+    CLIENT_CONNECTED    : 'cc',
+    CLIENT_DISCONNECTED    : 'cd'
 };
 
 if (typeof module !== 'undefined') { // server side

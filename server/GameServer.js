@@ -18,7 +18,10 @@ var GameServer = Object.extend({
 
     addClient: function (req) {
         var uuid = req.session.UUID;
-        this.players.push({id: uuid});
+        _.each(this.players, function(element){
+            element.request.socket.send(CONN.CLIENT_CONNECTED + "#" + uuid);
+        },this);
+        this.players.push({id: uuid, request: req});
         console.log("Player added: " + uuid);
     },
 
@@ -29,6 +32,9 @@ var GameServer = Object.extend({
             if (value.id === uuid) return undefined;
             return value;
         });
+        _.each(this.players, function(element){
+            element.request.socket.send(CONN.CLIENT_DISCONNECTED + "#" + uuid);
+        },this);
     }
 });
 module.exports = GameServer;
