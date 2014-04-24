@@ -14,6 +14,7 @@ var Main = Object.extend({
 
         this.network = network;
         this.network.sessionEstablishedSignal.add(this.startSession, this);
+        this.network.sessionLostSignal.add(this.sessionLost, this);
     },
 
     preload: function () {
@@ -121,8 +122,9 @@ var Main = Object.extend({
         _playersettings.open();
     },
 
-    stopSession: function (uuid) {
+    sessionLost: function (uuid) {
         this.player.destroyPlayer();
+        console.debug("Session lost!");
     }
 
 });

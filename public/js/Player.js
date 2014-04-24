@@ -43,6 +43,7 @@ Player.prototype.createPlayer = function(){
 };
 Player.prototype.destroyPlayer = function(){
     this.destroy(this);
+    console.debug("Player destroyed: " + this.uuid);
 };
 Player.prototype.update = function(){
 

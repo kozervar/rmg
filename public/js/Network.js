@@ -11,6 +11,7 @@ var Network = Object.extend({
     fakeLag : 0,
 
     sessionEstablishedSignal : new Phaser.Signal(),
+    sessionLostSignal : new Phaser.Signal(),
 
     initialize: function () {
     },
@@ -45,7 +46,7 @@ var Network = Object.extend({
         this.socket.emit(window.CONN.CONNECTED);
     },
     onDisconnect: function () {
-        this.main.stopSession(this.id);
+        this.sessionLostSignal.dispatch(this.id);
         console.debug('Disconnected from server.');
         this.socket.disconnect();
     },
