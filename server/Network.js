@@ -5,7 +5,7 @@ require('./../public/js/Util.js');
 var UUID = require('node-uuid'),
     CONFIG = require('./../public/js/Configuration.js'),
     CONN = require('./../public/js/Connection.js'),
-    GameServer = require('GameServer.js');
+    GameServer = require('./GameServer.js');
 
 var Network = Object.extend({
 
@@ -31,7 +31,7 @@ var Network = Object.extend({
 
             req.io.emit(CONN.SESSION, req.session);
 
-            this.gameServer.addClient(req);
+            self.gameServer.addClient(req);
         });
     },
 

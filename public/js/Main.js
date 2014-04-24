@@ -127,14 +127,17 @@ var Main = Object.extend({
                 if (!onTheGround) this.canDoubleJump = false;
             }
         }
+
+
     },
 
-    render : function(){
+    render: function () {
         //this.game.debug.text("this is debug text", this.player.position.x - 10, this.player.position.y - 10);
-        this.game.debug.text(this.game.time.deltaCap, 10, 10);
+//        this.game.debug.text("Delta: " + this.game.time.deltaCap, 10, 80);
+//        this.game.debug.text("Elapsed: " + this.game.time.elapsed, 10, 95);
     },
 
-    createDebugGui : function(){
+    createDebugGui: function () {
         this.gui = new dat.GUI();
 
         var _playersettings = this.gui.addFolder('Player');
@@ -143,8 +146,16 @@ var Main = Object.extend({
         _playersettings.add(this.player.body.acceleration, 'x').listen();
         _playersettings.add(this.player.body.acceleration, 'y').listen();
 
+        var _time = this.gui.addFolder('Time');
+        _time.add(this.game.time, 'fps').listen();
+        _time.add(this.game.time, 'deltaCap').listen();
+        _time.add(this.game.time, 'elapsed').listen();
+        _time.add(this.game.time, 'physicsElapsed').listen();
+        _time.add(this.game.time, 'lastTime').listen();
+        _time.add(this.game.time, 'now').listen();
 
         _playersettings.open();
+        _time.open();
     }
 });
 jQuery(document).ready(function () {
