@@ -1,6 +1,7 @@
 /**
  * Created by Marcin Kozaczyk on 23.04.14.
  */
+var debugGui = new dat.GUI();
 var Main = Object.extend({
     initialize: function () {
     },
@@ -138,15 +139,13 @@ var Main = Object.extend({
     },
 
     createDebugGui: function () {
-        this.gui = new dat.GUI();
-
-        var _playersettings = this.gui.addFolder('Player');
+        var _playersettings = debugGui.addFolder('Player');
         _playersettings.add(this.player.position, 'x').listen();
         _playersettings.add(this.player.position, 'y').listen();
         _playersettings.add(this.player.body.acceleration, 'x').listen();
         _playersettings.add(this.player.body.acceleration, 'y').listen();
 
-        var _time = this.gui.addFolder('Time');
+        var _time = debugGui.addFolder('Time');
         _time.add(this.game.time, 'fps').listen();
         _time.add(this.game.time, 'deltaCap').listen();
         _time.add(this.game.time, 'elapsed').listen();

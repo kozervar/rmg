@@ -5,9 +5,11 @@
 var CONN = {
     CONNECT     : 'connect',
     DISCONNECT  : 'disconnect',
+    MESSAGE     : 'message',
     CONNECTED   : 0,
     DISCONNECTED: 1,
-    SESSION     : 2
+    SESSION     : 2,
+    PING        : 'p'
 };
 
 if (typeof module !== 'undefined') { // server side

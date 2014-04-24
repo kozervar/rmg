@@ -7,7 +7,7 @@ var UUID = require('node-uuid'),
     CONN = require('./../public/js/Connection.js'),
     GameServer = require('./GameServer.js');
 
-var Network = Object.extend({
+var NetworkServer = Object.extend({
 
     initialize : function(app){
         console.log("Initializing networking");
@@ -24,6 +24,7 @@ var Network = Object.extend({
         req.session.save(function(){
             // BIND
             req.socket.on(CONN.DISCONNECT, self.onSessionDisconnect.bind(self,req));
+            req.socket.on(CONN.MESSAGE, self.onServerMessage.bind(self,req));
 
             req.intervalID = setInterval(function () {
                 req.session.reload(self.onSessionReload.bind(self, req));
@@ -44,8 +45,19 @@ var Network = Object.extend({
     onSessionReload : function(req){
         console.info("Session RELOAD. UUID " + req.session.UUID);
         req.session.touch().save();
+    },
+
+    onServerMessage: function (req,data) {
+        var commands = data.split('#');
+        var command = commands[0];
+        var data = commands[1] || null;
+        switch (command) {
+            case CONN.PING : //server ping
+                req.socket.send(CONN.PING + "#" + data); // forward time to client
+                break;
+        } //subcommand
     }
 });
 
 // Node server side export
-module.exports = Network;
+module.exports = NetworkServer;

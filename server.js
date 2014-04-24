@@ -6,7 +6,7 @@ var express = require('express.io'),
     app = express().http().io(),
     CONFIG = require('./public/js/Configuration.js'),
     CONN = require('./public/js/Connection.js'),
-    Network = require('./server/Network.js');
+    NetworkServer = require('./server/NetworkServer.js');
 
 var MemoryStore = express.session.MemoryStore;
 var sessionStore = new MemoryStore();
@@ -23,5 +23,5 @@ app.use(express.static(__dirname + '/public/'));
 console.info('Starting server.');
 app.listen(CONFIG.PORT, function(){
     console.info('Server started. Port: ' + CONFIG.PORT);
-    var net = new Network(app);
+    var net = new NetworkServer(app);
 });

@@ -4,7 +4,7 @@
 (function () {
 
     var CONFIG = {
-        PORT : 4004,
+        PORT : 4005,
         SESSION_RELOAD_INT : 10*1000
     };
 
