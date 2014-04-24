@@ -7,16 +7,28 @@ var UUID = require('node-uuid'),
     CONN = require('./../public/js/Connection.js');
 
 var GameServer = Object.extend({
-    initialize : function(app){
+
+    serverTime: null,
+    players: [],
+
+    initialize: function (app) {
         this.app = app;
+        this.serverTime = new Date().getTime();
     },
 
-    addClient : function(req){
-
+    addClient: function (req) {
+        var uuid = req.session.UUID;
+        this.players.push({id: uuid});
+        console.log("Player added: " + uuid);
     },
 
-    removeClient : function(req){
-
+    removeClient: function (req) {
+        var uuid = req.session.UUID;
+        console.log("Player removed: " + uuid);
+        this.players = _.filter(this.players, function (value) {
+            if (value.id === uuid) return undefined;
+            return value;
+        });
     }
 });
 module.exports = GameServer;

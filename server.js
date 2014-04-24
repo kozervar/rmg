@@ -8,6 +8,8 @@ var express = require('express.io'),
     CONN = require('./public/js/Connection.js'),
     NetworkServer = require('./server/NetworkServer.js');
 
+    GLOBAL._ = require('underscore');
+
 var MemoryStore = express.session.MemoryStore;
 var sessionStore = new MemoryStore();
 

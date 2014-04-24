@@ -3,13 +3,19 @@
  */
 var Network = Object.extend({
 
+    id : null,
+
     netLatency : 0.001,
     netPing : 0.001,
     lastPingTime : 0.001,
     fakeLag : 0,
 
-    initialize: function (main) {
-        this.main = main;
+    sessionEstablishedSignal : new Phaser.Signal(),
+
+    initialize: function () {
+    },
+
+    connect : function() {
         console.debug('Connecting to server.');
         if (this.socket == null) {
             this.socket = io.connect(null, {
@@ -25,6 +31,7 @@ var Network = Object.extend({
         this.socket.socket.connect();
 
         var _netFolder = debugGui.addFolder('Network');
+        _netFolder.add(this, 'id').listen();
         _netFolder.add(this, 'netLatency').listen();
         _netFolder.add(this, 'netPing').listen();
         _netFolder.add(this, 'lastPingTime').listen();
@@ -38,6 +45,7 @@ var Network = Object.extend({
         this.socket.emit(window.CONN.CONNECTED);
     },
     onDisconnect: function () {
+        this.main.stopSession(this.id);
         console.debug('Disconnected from server.');
         this.socket.disconnect();
     },
@@ -50,7 +58,9 @@ var Network = Object.extend({
             self.socket.send(window.CONN.PING + '#' + (self.lastPingTime) );
         }.bind(this), 1000);
 
-        this.main.start();
+        this.id = session.UUID;
+
+        this.sessionEstablishedSignal.dispatch(this.id);
     },
 
     onServerMessage: function (data) {

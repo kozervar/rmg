@@ -3,17 +3,24 @@
  */
 var debugGui = new dat.GUI();
 var Main = Object.extend({
+
+
+
     initialize: function () {
     },
-    start: function () {
+    start: function (network) {
         this.game = new Phaser.Game(848, 450, Phaser.AUTO, $('#game'));
         this.game.state.add('game', this, true);
+
+        this.network = network;
+        this.network.sessionEstablishedSignal.add(this.startSession, this);
     },
 
     preload: function () {
         this.game.load.image('ground', 'assets/gfx/ground.png');
         this.game.load.image('player', 'assets/gfx/player.png');
-
+        this.game.load.image('rocket', 'assets/gfx/rocket.png');
+        this.game.load.onLoadComplete.add(this.network.connect, this.network);
     },
 
     create: function () {
@@ -21,32 +28,10 @@ var Main = Object.extend({
         this.game.stage.backgroundColor = 0x4488cc;
 
         // Define movement constants
-        this.MAX_SPEED = 250; // pixels/second
-        this.ACCELERATION = 600; // pixels/second/second
-        this.DRAG = 400; // pixels/second
         this.GRAVITY = 980; // pixels/second/second
-        this.JUMP_SPEED = -600; // pixels/second (negative y is up)
-
-        // Create a player sprite
-        this.player = this.game.add.sprite(this.game.width / 2, this.game.height - 64, 'player');
-
-        // Enable physics on the player
-        this.game.physics.enable(this.player, Phaser.Physics.ARCADE);
-
-        // Make player collide with world boundaries so he doesn't leave the stage
-        this.player.body.collideWorldBounds = true;
-
-        // Set player minimum and maximum movement speed
-        this.player.body.maxVelocity.setTo(this.MAX_SPEED, this.MAX_SPEED * 10); // x, y
-
-        // Add drag to the player that slows them down when they are not accelerating
-        this.player.body.drag.setTo(this.DRAG, 0); // x, y
 
         // Since we're jumping we need gravity
         this.game.physics.arcade.gravity.y = this.GRAVITY;
-
-        // Set a flag for tracking if we've double jumped
-        this.canDoubleJump = true;
 
         // Create some ground for the player to walk on
         this.ground = this.game.add.group();
@@ -77,8 +62,8 @@ var Main = Object.extend({
         this.fpsText = this.game.add.text(
             20, 20, '', { font: '16px Arial', fill: '#ffffff' }
         );
-
         this.createDebugGui();
+
     },
 
     drawHeightMarkers: function () {
@@ -86,7 +71,7 @@ var Main = Object.extend({
         var bitmap = this.game.add.bitmapData(this.game.width, this.game.height);
 
         // These functions use the canvas context to draw lines using the canvas API
-        for (y = this.game.height - 32; y >= 64; y -= 32) {
+        for (var y = this.game.height - 32; y >= 64; y -= 32) {
             bitmap.context.beginPath();
             bitmap.context.strokeStyle = 'rgba(255, 255, 255, 0.2)';
             bitmap.context.moveTo(0, y);
@@ -103,33 +88,9 @@ var Main = Object.extend({
         }
 
         // Collide the player with the ground
-        this.game.physics.arcade.collide(this.player, this.ground);
-
-        if (this.input.keyboard.isDown(Phaser.Keyboard.LEFT)) {
-            // If the LEFT key is down, set the player velocity to move left
-            this.player.body.acceleration.x = -this.ACCELERATION;
-        } else if (this.input.keyboard.isDown(Phaser.Keyboard.RIGHT)) {
-            // If the RIGHT key is down, set the player velocity to move right
-            this.player.body.acceleration.x = this.ACCELERATION;
-        } else {
-            this.player.body.acceleration.x = 0;
+        if (this.player) {
+            this.player.collide(this.ground);
         }
-
-        // Set a variable that is true when the player is touching the ground
-        var onTheGround = this.player.body.touching.down;
-        if (onTheGround) this.canDoubleJump = true;
-
-        if (this.input.keyboard.justPressed(Phaser.Keyboard.UP, 1)) {
-            if (this.canDoubleJump || onTheGround) {
-                // Jump when the player is touching the ground or they can double jump
-                this.player.body.velocity.y = this.JUMP_SPEED;
-
-                // Disable ability to double jump if the player is jumping in the air
-                if (!onTheGround) this.canDoubleJump = false;
-            }
-        }
-
-
     },
 
     render: function () {
@@ -139,12 +100,6 @@ var Main = Object.extend({
     },
 
     createDebugGui: function () {
-        var _playersettings = debugGui.addFolder('Player');
-        _playersettings.add(this.player.position, 'x').listen();
-        _playersettings.add(this.player.position, 'y').listen();
-        _playersettings.add(this.player.body.acceleration, 'x').listen();
-        _playersettings.add(this.player.body.acceleration, 'y').listen();
-
         var _time = debugGui.addFolder('Time');
         _time.add(this.game.time, 'fps').listen();
         _time.add(this.game.time, 'deltaCap').listen();
@@ -152,13 +107,27 @@ var Main = Object.extend({
         _time.add(this.game.time, 'physicsElapsed').listen();
         _time.add(this.game.time, 'lastTime').listen();
         _time.add(this.game.time, 'now').listen();
-
-        _playersettings.open();
         _time.open();
+    },
+
+    startSession: function (uuid){
+        this.player = new Player(this, this.game.width / 2, this.game.height - 164, uuid);
+        this.player.createPlayer();
+        var _playersettings = debugGui.addFolder('Player');
+        _playersettings.add(this.player.position, 'x').listen();
+        _playersettings.add(this.player.position, 'y').listen();
+        _playersettings.add(this.player.body.acceleration, 'x').listen();
+        _playersettings.add(this.player.body.acceleration, 'y').listen();
+        _playersettings.open();
+    },
+
+    stopSession: function (uuid) {
+        this.player.destroyPlayer();
     }
+
 });
 jQuery(document).ready(function () {
+    var network = new Network();
     var main = new Main();
-    var network = new Network(main);
-
+    main.start(network);
 });
